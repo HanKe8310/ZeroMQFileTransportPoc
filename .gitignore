@@ -1,0 +1,51 @@
+# Do not use Notepad to edit this.  Use VS, vim, Notepad++, etc.  Uses UNIX line endings.
+
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.opendb
+*.sln.ide
+*.nupkg
+*.nuget.props
+*.nuget.targets
+project.lock.json
+[Oo]bj/
+[Bb]in/
+Debug/
+Release/
+x86/
+x64/
+ARM/
+ipch/
+AppPackages/
+/.vs/*
+**/.gradle/*
+android/components/ScreenMirroring/LibNanoAPI/externals/
+android/apps/BatteryTelemetryApp/app/.classpath
+apps/yourphone/uap/YourPhone/ScreenMirroring/NanoDependencies/
+**.nano.csproj
+**.nano.vcxproj
+**.nano.vcxproj.filters
+**with-nano.sln
+**.nano.Package.wapproj
+.vscode/
+*.g.inl
+**/generated/**/ValueSetSerializer**
+
+**/.vs
+**/bin/Debug
+**/obj
+*.prefs
+**/.idea/
+*.project
+*/.vscode/
+
+# iOS
+**/.DS_Store
+**/xcuserdata/
+*.log
+
+# Visual Studio 2017 auto generated files
+Generated\ Files/
+*-external-release

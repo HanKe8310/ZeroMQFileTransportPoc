@@ -1,0 +1,25 @@
+﻿<Page
+    x:Class="ZeroMQServer.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:ZeroMQServer"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel>
+        <TextBox    x:Name="IPAddress" FontSize="38" PlaceholderText="type your ip and port" Visibility="Collapsed"/>
+        <TextBlock x:Name="FileName" Text="" FontSize="42"
+                   Margin="0, 50, 0, 50"
+                   Visibility="Visible" Height="100"/>
+        <Button Width="360" Height="133"
+                Content="Start Server"
+                Margin="0, 50, 0, 50"
+                Click="Button_Click"/>
+        <Button Width="360" Height="133"
+                Content="Open File"
+                Click="Open_File_Click"/>
+
+    </StackPanel>
+</Page>
