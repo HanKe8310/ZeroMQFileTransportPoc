@@ -22,6 +22,7 @@ namespace ZeroMQServer
         private static readonly string SyncMsg = "sync";
         private readonly int chunks_size = 250000;
         private Stream FileStream = null;
+        private BufferedStream BufferedStream = null;
         private byte[] buffer;
         private string fileName = null;
         public MainPage()
@@ -42,6 +43,8 @@ namespace ZeroMQServer
                 // Application now has read/write access to the picked file
 
                 FileStream = await file.OpenStreamForReadAsync();
+                BufferedStream = new BufferedStream(FileStream);
+
                 FileName.Text = "Picked file: " + file.Name + " " + FileStream.Length;
                 fileName = file.Name;
 
@@ -59,6 +62,7 @@ namespace ZeroMQServer
             server.Bind("tcp://192.168.31.34:5556");
             Debug.WriteLine("start server");
             bool isEnd = false;
+            int index = 0;
             Task.Run(() =>
             {
                 while (true)
@@ -80,6 +84,8 @@ namespace ZeroMQServer
                             var dataMsg = new NetMQMessage();
                             dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes(identity)));
                             dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes("")));
+                            dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes("-1")));
+                            dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes("0")));
                             dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes("end")));
                             server.SendMultipartMessage(dataMsg);
                             continue;
@@ -88,11 +94,13 @@ namespace ZeroMQServer
                         while (chunkCount > 0)
                         {
                             int result = FileStream.Read(buffer, 0, chunkSize);
+                            
                             Debug.WriteLine(result);
                             var dataMsg = new NetMQMessage();
                             dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes(identity.ToString())));
                             dataMsg.Append(new NetMQFrame(buffer));
-
+                            dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes(index.ToString())));
+                            dataMsg.Append(new NetMQFrame(Encoding.UTF8.GetBytes(result.ToString())));
                             if (result < chunkSize)
                             {
                                 isEnd = true;
@@ -102,6 +110,7 @@ namespace ZeroMQServer
                             }
                             server.SendMultipartMessage(dataMsg);
                             chunkCount--;
+                            index++;
                         }
                     } else if (command.Equals(SyncMsg))
                     {

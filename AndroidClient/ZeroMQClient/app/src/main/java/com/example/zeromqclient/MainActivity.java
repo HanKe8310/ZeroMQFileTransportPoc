@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
                     socket.sendMore(String.valueOf(CHUNK_SIZE));
                     socket.send(String.valueOf(CHUNK_COUNT));
                     int count = CHUNK_COUNT;
-                    Log.e(TAG, id +  " send fetch command: " + String.valueOf(total) + " " + String.valueOf(CHUNK_SIZE));
+
                     while (count > 0) {
                         ZMsg msg = ZMsg.recvMsg(socket);
                         count--;
@@ -105,10 +105,15 @@ public class MainActivity extends AppCompatActivity {
                         chunks++;
                         int length = chunk.size();
                         byte[] data = chunk.getData();
-                        fileHandler.writeFile(data);
+                        String indexMsg = msg.popString();
+                        String realSizeMsg = msg.popString();
+                        int index= Integer.parseInt(indexMsg);
+                        int realSize= Integer.parseInt(realSizeMsg);
+                        Log.e(TAG, id +  " write to file: " + index + " " + realSize);
+                        fileHandler.writeFile(data, length, index, realSize);
                         total += length;
                         if (msg.peek() != null) {
-                            shouldEnd = true;
+                            shouldEnd = fileHandler.isFileSizeMatchExpect();
                             break;
                         }
                         msg.destroy();
