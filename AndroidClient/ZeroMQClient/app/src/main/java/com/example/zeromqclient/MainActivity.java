@@ -152,14 +152,12 @@ public class MainActivity extends AppCompatActivity {
                     fileHandler.writeFile(data, length, index, realSize);
                     total += length;
                     if (msg.peek() != null) {
-                        //todo add logic for missing chunks
-                        shouldEnd = fileHandler.isFileSizeMatchExpect();
+                        shouldEnd = true;
                         break;
                     }
                     msg.destroy();
                 }
                 if (shouldEnd) {
-                    fileHandler.closeFile();
                     break;
                 }
             }
@@ -235,8 +233,12 @@ public class MainActivity extends AppCompatActivity {
         recv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ZThread.fork(zContext, recvRunnable, new Object[]{"client"});
-                ZThread.fork(zContext, recvRunnable, new Object[]{"client2"});
+                ZMQ.Socket pipe1 = ZThread.fork(zContext, recvRunnable, new Object[]{"client"});
+                ZMQ.Socket pipe2 = ZThread.fork(zContext, recvRunnable, new Object[]{"client2"});
+                String result1 = pipe1.recvStr();
+                String result2 = pipe2.recvStr();
+                Log.e(MainActivity.TAG, result1 + " " + result2);
+                //todo add logic for missing chunks
             }
         });
 
