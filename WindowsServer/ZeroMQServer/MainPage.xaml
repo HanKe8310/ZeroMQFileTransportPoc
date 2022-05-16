@@ -21,5 +21,10 @@
                 Content="Open File"
                 Click="Open_File_Click"/>
 
+        <Button Width="360" Height="133"
+                Content="Receive file from phone"
+                Margin="0, 50, 0, 50"
+                Click="Recv_File_Click"/>
+
     </StackPanel>
 </Page>

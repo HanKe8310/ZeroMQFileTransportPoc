@@ -61,7 +61,7 @@ public class FileHandler {
                     randomAccessFile.write(bytes);
                     currentSize += chunkSize;
                 }
-                Log.e(MainActivity.TAG, "write " + realSize + " bytes from " + writePos);
+                Log.e(MainActivity.TAG, "write " + realSize + " bytes from " + writePos + " currentSize: " + currentSize + " total: " + totalSize);
             } catch (IOException e) {
                 Log.e(MainActivity.TAG, "write file chunk failed: " + e);
             }
