@@ -16,7 +16,6 @@ public class FileHandler {
 
     private Context context;
     private File currentFile;
-    private FileOutputStream currentFileStream;
     private RandomAccessFile randomAccessFile;
     private int totalSize;
     private int currentSize;
@@ -33,11 +32,11 @@ public class FileHandler {
                 File fs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
                 Log.e(MainActivity.TAG, fs.getAbsolutePath());
                 currentFile = fs;
-                currentFileStream = new FileOutputStream(currentFile);
                 randomAccessFile = new RandomAccessFile(currentFile, "rwd");
+                randomAccessFile.setLength(totalSize);
                 this.totalSize = totalSize;
                 this.currentSize = 0;
-            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
                 Log.e(MainActivity.TAG, "file create failed: "+ e);
             }
         });

@@ -152,12 +152,14 @@ public class MainActivity extends AppCompatActivity {
                     fileHandler.writeFile(data, length, index, realSize);
                     total += length;
                     if (msg.peek() != null) {
+                        //todo add logic for missing chunks
                         shouldEnd = fileHandler.isFileSizeMatchExpect();
                         break;
                     }
                     msg.destroy();
                 }
                 if (shouldEnd) {
+                    fileHandler.closeFile();
                     break;
                 }
             }
