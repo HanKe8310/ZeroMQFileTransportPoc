@@ -11,7 +11,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Environment;
 import android.provider.OpenableColumns;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
@@ -72,6 +74,12 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
 
+        if (!Environment.isExternalStorageManager()) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+            startActivity(intent);
+            return;
+        }
+
         ZContext zContext = new ZContext();
 
         Intent  intent = getIntent();
@@ -113,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
                 id = String.valueOf(args[0]);
             }
             socket.setIdentity(id.getBytes(StandardCharsets.UTF_8));
-            boolean result = socket.connect("tcp://192.168.31.34:5556");
+            boolean result = socket.connect("tcp://10.106.153.234:5556");
 
             socket.send(SYNC_MSG);
             ZMsg sync = ZMsg.recvMsg(socket);
@@ -234,10 +242,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ZMQ.Socket pipe1 = ZThread.fork(zContext, recvRunnable, new Object[]{"client"});
-                ZMQ.Socket pipe2 = ZThread.fork(zContext, recvRunnable, new Object[]{"client2"});
+                //ZMQ.Socket pipe2 = ZThread.fork(zContext, recvRunnable, new Object[]{"client2"});
                 String result1 = pipe1.recvStr();
-                String result2 = pipe2.recvStr();
-                Log.e(MainActivity.TAG, result1 + " " + result2);
+                // String result2 = pipe2.recvStr();
+                // Log.e(MainActivity.TAG, result1 + " " + result2);
                 //todo add logic for missing chunks
             }
         });

@@ -29,7 +29,7 @@ public class FileHandler {
         executor.submit(() -> {
             try {
                 Log.e(MainActivity.TAG, "create file");
-                File fs = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
+                File fs = new File(Environment.getExternalStorageDirectory(), filename);
                 Log.e(MainActivity.TAG, fs.getAbsolutePath());
                 currentFile = fs;
                 randomAccessFile = new RandomAccessFile(currentFile, "rwd");
