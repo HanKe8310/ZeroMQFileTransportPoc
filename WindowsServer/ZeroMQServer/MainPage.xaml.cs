@@ -11,6 +11,8 @@ using NetMQ.Sockets;
 using Windows.Networking.NetworkOperators;
 using Windows.Storage;
 using System.Collections.Generic;
+using Windows.System;
+using Windows.UI.Core;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -30,6 +32,11 @@ namespace ZeroMQServer
         private BufferedStream BufferedStream = null;
         private byte[] buffer;
         private string fileName = null;
+
+        private bool isTestSetup = false;
+        private readonly RouterSocket testServer = new RouterSocket();
+        private readonly DealerSocket testClient = new DealerSocket();
+
         public MainPage()
         {
             this.InitializeComponent();
@@ -64,7 +71,7 @@ namespace ZeroMQServer
         {
             var server = new RouterSocket();
             //server.Bind("tcp://" + IPAddress.Text);
-            server.Bind("tcp://192.168.31.34:5556");
+            server.Bind("tcp://192.168.31.23:5556");
             Debug.WriteLine("start server");
             bool isEnd = false;
             int index = 0;
@@ -244,5 +251,76 @@ namespace ZeroMQServer
                 Debug.WriteLine("Operation cancelled.");
             }
         }
+
+        private void Test_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isTestSetup)
+            {
+                string address = "tcp://10.106.153.234:5556";
+                byte[] identity = Encoding.UTF8.GetBytes("testclient");
+                
+                testServer.Bind(address);
+
+                testClient.Options.Identity = identity;
+                testClient.Connect(address);
+                isTestSetup = true;
+            }
+            
+            Debug.WriteLine("start test");
+            string pkgCount = PkgCount.Text;
+            int packageCount = pkgCount == string.Empty ? 100 : Convert.ToInt32(pkgCount);
+            string pkgSize = PkgSize.Text;
+            int packageSize = pkgCount == string.Empty ? chunks_size : Convert.ToInt32(pkgSize) * 1024;
+
+            int sendCount = packageCount;
+            Random randomHelper = new Random();
+            var queue = DispatcherQueue.GetForCurrentThread();
+            _ = Task.Run(() =>
+            {
+                Debug.WriteLine("start recv");
+                var recvCount = 0;
+                DateTime start = DateTime.Now;
+                while (true)
+                {
+                    var recvMsg = testServer.ReceiveMultipartMessage();
+                    recvCount++;
+                    recvMsg.Clear();
+                    if (recvCount == packageCount)
+                    {
+                        break;
+                    }
+                }
+                TimeSpan duration = DateTime.Now - start;
+                float totalSize = recvCount * packageSize;
+                float totalSizeInMByte = totalSize / 1024 / 1024;
+                double speedInBit = totalSizeInMByte / duration.TotalSeconds * 8;
+                string output = "total size: " + totalSizeInMByte + "MB in " + duration.TotalSeconds + "s, avg speed: " + speedInBit + " Mbps/s";
+                Debug.WriteLine(output);
+                queue.TryEnqueue(() =>
+                {
+                    TestResult.Text = output;
+                });
+            });
+
+            _ = Task.Run(() =>
+            {
+                Debug.WriteLine("start sending: " + packageSize + " " + packageCount);
+                while (sendCount > 0)
+                {
+                    byte[] data = new byte[packageSize];
+                    randomHelper.NextBytes(data);
+                    var msg = new NetMQMessage();
+                    msg.Append(new NetMQFrame(Encoding.UTF8.GetBytes(StartMSG)));
+                    msg.Append(new NetMQFrame(Encoding.UTF8.GetBytes(chunks_size.ToString())));
+                    msg.Append(data);
+                    testClient.SendMultipartMessage(msg);
+                    sendCount--;
+                }
+            });
+
+            
+
+        }
+
     }
 }
